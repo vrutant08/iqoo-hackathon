@@ -185,12 +185,11 @@ class VisionService:
         genai = self._get_client()
 
         candidate_models = [
-            model_name,
+            model_name or "gemini-2.5-flash",
             "gemini-2.5-flash",
-            "gemini-2.0-flash",
             "gemini-1.5-flash",
-            "gemini-3.6-flash",
-            "gemini-flash-latest",
+            "gemini-2.0-flash",
+            "gemini-1.5-pro",
         ]
         candidate_models = [m for m in dict.fromkeys(candidate_models) if m]
 
@@ -396,7 +395,7 @@ CRITICAL MULTI-FILE & LIVE PREVIEW REQUIREMENTS:
 Return ONLY a valid JSON object matching the schema."""
 
         result = self._call_gemini(
-            model_name="gemini-3.6-flash",
+            model_name="gemini-2.5-flash",
             prompt=prompt,
             image_bytes=image_bytes,
             mime_type=mime_type,
@@ -498,7 +497,7 @@ CRITICAL REQUIREMENTS:
 Return ONLY a valid JSON object matching the REFINE_SCHEMA."""
 
         result = self._call_gemini(
-            model_name="gemini-3.6-flash",
+            model_name="gemini-2.5-flash",
             prompt=refine_prompt,
             schema=REFINE_SCHEMA,
         )
@@ -638,7 +637,7 @@ CRITICAL OUTPUT REQUIREMENTS:
 Return ONLY a valid JSON object."""
 
         return self._call_gemini(
-            model_name="gemini-3.6-flash",
+            model_name="gemini-2.5-flash",
             prompt=prompt,
             image_bytes=image_bytes,
             mime_type=mime_type,

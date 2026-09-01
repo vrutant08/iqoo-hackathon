@@ -118,7 +118,7 @@ class AudioService:
                 return None
 
             genai.configure(api_key=settings.GEMINI_API_KEY)
-            model = genai.GenerativeModel("gemini-3.6-flash")
+            model = genai.GenerativeModel("gemini-2.5-flash")
 
             audio_bytes = audio_path.read_bytes()
             suffix = audio_path.suffix.lower()
