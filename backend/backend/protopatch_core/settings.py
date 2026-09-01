@@ -73,7 +73,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STORAGES = {
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 MEDIA_URL = "/media/"
@@ -83,22 +83,26 @@ MEDIA_ROOT = BASE_DIR / "media"
 # CORS — Allow frontend dev server and LAN mobile devices
 # -----------------------------------------------------------------------
 CORS_ALLOW_ALL_ORIGINS = True  # Hackathon: allow Vercel frontend
-CORS_ALLOWED_ORIGINS = [
-    o.strip()
-    for o in os.environ.get(
-        "CORS_ALLOWED_ORIGINS",
-        "http://localhost:3000,http://127.0.0.1:3000"
-    ).split(",")
-    if o.strip()
-]
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
+from corsheaders.defaults import default_headers, default_methods
+CORS_ALLOW_HEADERS = list(default_headers) + [
     "content-type",
-    "origin",
+    "authorization",
     "x-requested-with",
+    "accept",
+    "origin",
+    "user-agent",
+    "dnt",
+    "cache-control",
+    "x-csrftoken",
+]
+CORS_ALLOW_METHODS = list(default_methods) + [
+    "OPTIONS",
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
 ]
 
 # -----------------------------------------------------------------------

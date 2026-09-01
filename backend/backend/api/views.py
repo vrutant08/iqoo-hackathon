@@ -79,24 +79,24 @@ class Sketch2StackView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
-        serializer = Sketch2StackInputSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(
-                {"success": False, "error": serializer.errors},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        validated = serializer.validated_data
-        image_file = validated["image"]
-        notes = validated.get("notes", "")
-        style = validated.get("style", "auto")
-        stack = {
-            "frontend": validated.get("stack_frontend", "react"),
-            "backend": validated.get("stack_backend", "django"),
-            "database": validated.get("stack_database", "postgresql"),
-        }
-
         try:
+            serializer = Sketch2StackInputSerializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(
+                    {"success": False, "error": serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            validated = serializer.validated_data
+            image_file = validated["image"]
+            notes = validated.get("notes", "")
+            style = validated.get("style", "auto")
+            stack = {
+                "frontend": validated.get("stack_frontend", "react"),
+                "backend": validated.get("stack_backend", "django"),
+                "database": validated.get("stack_database", "postgresql"),
+            }
+
             image_bytes = image_file.read()
 
             # --- Step 1: VLM Multi-File Analysis ---
@@ -126,11 +126,12 @@ class Sketch2StackView(APIView):
                 "detected_components": sketch_result.get("detected_components", []),
                 "sandbox_html": sandbox_html,
             })
-
         except Exception as exc:
-            logger.exception("Sketch2Stack pipeline error")
+            import traceback
+            tb = traceback.format_exc()
+            logger.error("Sketch2Stack pipeline error: %s", tb)
             return Response(
-                {"success": False, "error": str(exc)},
+                {"success": False, "error": str(exc), "traceback": tb},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
