@@ -184,8 +184,15 @@ class VisionService:
         """
         genai = self._get_client()
 
-        candidate_models = [model_name, "gemini-3.6-flash", "gemini-flash-latest", "gemini-3-flash-preview"]
-        candidate_models = list(dict.fromkeys(candidate_models))
+        candidate_models = [
+            model_name,
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-3.6-flash",
+            "gemini-flash-latest",
+        ]
+        candidate_models = [m for m in dict.fromkeys(candidate_models) if m]
 
         content_parts = [prompt]
         if image_bytes:
