@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+ENV/
+
+# Environment / Secrets (CRITICAL)
+.env
+.env.*
+!.env.example
+
+# Build outputs
+dist/
+.output/
+.tanstack/
+.vercel/
+
+# Python cache & database
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+db.sqlite3
+backend/media/
+media/
+
+# Logs & temp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.temp/
+tmp/
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

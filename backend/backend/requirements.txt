@@ -1,0 +1,32 @@
+# ============================================================
+# ProtoPatch Backend Dependencies
+# Python 3.14 | Django | DRF | Gemini | Tree-sitter
+# ============================================================
+
+# --- Web Framework ---
+django>=6.1
+djangorestframework>=3.18.0
+django-cors-headers>=4.9.0
+python-dotenv>=1.2.3
+
+# --- File Handling ---
+Pillow>=11.0.0
+python-magic-bin>=0.4.14; sys_platform == "win32"
+python-magic>=0.4.27; sys_platform != "win32"
+
+# --- Google Gemini VLM ---
+google-generativeai>=0.8.0
+
+# --- AST & Code Analysis (use latest compatible versions) ---
+tree-sitter>=0.24.0
+
+# --- Git Automation ---
+PyGithub>=2.3.0
+dulwich>=0.22.0
+
+# --- HTML Sanitization ---
+bleach>=6.1.0
+
+# --- Utilities ---
+requests>=2.32.0
+typing-extensions>=4.12.0
