@@ -185,11 +185,12 @@ class VisionService:
         genai = self._get_client()
 
         candidate_models = [
-            model_name or "gemini-2.5-flash",
-            "gemini-2.5-flash",
-            "gemini-1.5-flash",
-            "gemini-2.0-flash",
-            "gemini-1.5-pro",
+            model_name or "gemini-3.1-flash-lite",
+            "gemini-3.1-flash-lite",
+            "gemini-3.5-flash",
+            "gemini-3.6-flash",
+            "gemini-flash-latest",
+            "gemini-3.7-flash",
         ]
         candidate_models = [m for m in dict.fromkeys(candidate_models) if m]
 
@@ -200,16 +201,15 @@ class VisionService:
                 "data": image_bytes,
             })
 
+        import time
         last_exc = None
         for m_name in candidate_models:
             generation_config = {
                 "temperature": 0.2,
                 "top_p": 0.9,
                 "max_output_tokens": 8192,
+                "response_mime_type": "application/json",
             }
-            if schema:
-                generation_config["response_mime_type"] = "application/json"
-                generation_config["response_schema"] = schema
 
             try:
                 model = genai.GenerativeModel(model_name=m_name, generation_config=generation_config)
@@ -218,24 +218,15 @@ class VisionService:
                     raw_text = "".join(p.text for p in response.candidates[0].content.parts if hasattr(p, "text"))
                 else:
                     raw_text = response.text.strip()
-                return self._extract_json(raw_text)
+                extracted = self._extract_json(raw_text)
+                if extracted:
+                    logger.info("Successfully generated with model: %s", m_name)
+                    return extracted
             except Exception as exc:
                 last_exc = exc
-                logger.warning("Gemini model %s failed: %s — trying fallback", m_name, exc)
-                try:
-                    fallback_model = genai.GenerativeModel(
-                        model_name=m_name,
-                        generation_config={"temperature": 0.2, "max_output_tokens": 8192}
-                    )
-                    response = fallback_model.generate_content(content_parts)
-                    if response.candidates and response.candidates[0].content.parts:
-                        raw_text = "".join(p.text for p in response.candidates[0].content.parts if hasattr(p, "text"))
-                    else:
-                        raw_text = response.text.strip()
-                    return self._extract_json(raw_text)
-                except Exception as exc2:
-                    logger.warning("Gemini model %s fallback without schema failed: %s", m_name, exc2)
-                    continue
+                logger.warning("Gemini model %s failed: %s — trying next candidate", m_name, exc)
+                time.sleep(1.5)
+                continue
 
         logger.error("All Gemini candidate models failed: %s", last_exc)
         return {}
