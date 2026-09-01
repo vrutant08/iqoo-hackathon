@@ -84,7 +84,14 @@ export type StyleOption = "auto" | "dark" | "light" | "material" | "ios" | "mini
 // API Client
 // ---------------------------------------------------------------------------
 
-const API_BASE = import.meta.env.VITE_API_URL || "/api";
+function getApiBase(): string {
+  const envUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+  if (!envUrl) return "/api";
+  const cleaned = envUrl.replace(/\/+$/, "");
+  return cleaned.endsWith("/api") ? cleaned : `${cleaned}/api`;
+}
+
+const API_BASE = getApiBase();
 
 class ApiError extends Error {
   status: number;
@@ -100,20 +107,39 @@ class ApiError extends Error {
 export { ApiError };
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${url}`, options);
-  const data = await response.json();
-  if (!response.ok || data.success === false) {
-    throw new ApiError(
-      data.error
-        ? typeof data.error === "string"
-          ? data.error
-          : JSON.stringify(data.error)
-        : `Request failed (${response.status})`,
-      response.status,
-      data,
-    );
+  const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
+  try {
+    const response = await fetch(`${API_BASE}${normalizedUrl}`, options);
+    let data: any = {};
+    const text = await response.text();
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      data = { error: text || `Server returned status ${response.status}` };
+    }
+
+    if (!response.ok || data.success === false) {
+      throw new ApiError(
+        data.error
+          ? typeof data.error === "string"
+            ? data.error
+            : JSON.stringify(data.error)
+          : `Request failed (${response.status})`,
+        response.status,
+        data,
+      );
+    }
+    return data as T;
+  } catch (err: any) {
+    if (err instanceof ApiError) throw err;
+    if (err.name === "TypeError" && err.message?.toLowerCase().includes("fetch")) {
+      throw new ApiError(
+        "Backend server is waking up or unreachable. Please wait 10-15 seconds and try again.",
+        503,
+      );
+    }
+    throw err;
   }
-  return data as T;
 }
 
 // ---------------------------------------------------------------------------

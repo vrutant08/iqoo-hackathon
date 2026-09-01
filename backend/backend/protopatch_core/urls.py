@@ -4,7 +4,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
+from api.views import HealthCheckView
+
 urlpatterns = [
+    path("", HealthCheckView.as_view(), name="root-health"),
     path("api/", include("api.urls")),
 ]
 
