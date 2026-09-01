@@ -5,7 +5,7 @@ services:
     region: oregon
     rootDir: backend/backend
     buildCommand: "./build.sh"
-    startCommand: "gunicorn protopatch_core.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: "gunicorn protopatch_core.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 180"
     healthCheckPath: /api/health/
     envVars:
       - key: PYTHON_VERSION
