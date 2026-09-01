@@ -25,6 +25,11 @@ ALLOWED_HOSTS = os.environ.get(
     "localhost,127.0.0.1,0.0.0.0"
 ).split(",")
 
+# Allow all Render subdomains in production
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
 # -----------------------------------------------------------------------
 # Applications
 # -----------------------------------------------------------------------
@@ -40,6 +45,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",  # Must be first
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.common.CommonMiddleware",
 ]
 
@@ -72,13 +78,19 @@ DATABASES = {
 # Static / Media
 # -----------------------------------------------------------------------
 STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # -----------------------------------------------------------------------
 # CORS — Allow frontend dev server and LAN mobile devices
 # -----------------------------------------------------------------------
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Permissive in dev mode
+CORS_ALLOW_ALL_ORIGINS = True  # Hackathon: allow Vercel frontend
 CORS_ALLOWED_ORIGINS = [
     o.strip()
     for o in os.environ.get(

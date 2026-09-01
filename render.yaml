@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: protopatch-api
+    runtime: python
+    region: oregon
+    rootDir: backend/backend
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn protopatch_core.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
